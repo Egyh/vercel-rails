@@ -1,0 +1,43 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.vercel
+    command: bundle exec rails server -b 0.0.0.0 -p 3000
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+
+    env_file:
+      - .env
+
+    environment:
+      DATABASE_HOST: ${POSTGRES_HOST}
+      DATABASE_NAME: ${POSTGRES_DB}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_PORT: ${POSTGRES_PORT}
+
+    depends_on:
+      - db
+
+  db:
+    image: postgres:18.2-alpine3.22
+
+    env_file:
+      - .env
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
+  bundle:
